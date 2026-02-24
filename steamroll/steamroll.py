@@ -17,11 +17,13 @@ class SteamrollConversionError(Exception):
 
 
 def remove_hydrogens(molecule: Chem.rdchem.Mol) -> Chem.rdchem.Mol:
-    """
-    Remove hydrogens from an RDKit molecule.
+    """Remove hydrogens from an RDKit molecule.
 
-    :param molecule: molecule
-    :returns: RDKit molecule without hydrogens
+    Args:
+        molecule: molecule
+
+    Returns:
+        RDKit molecule without hydrogens
     """
     rwmol = Chem.RWMol(molecule)
 
@@ -42,11 +44,13 @@ def remove_hydrogens(molecule: Chem.rdchem.Mol) -> Chem.rdchem.Mol:
 
 
 def fragment(molecule: Chem.rdchem.Mol) -> list[Chem.rdchem.Mol]:
-    """
-    Fragment an RDKit molecule.
+    """Fragment an RDKit molecule.
 
-    :param molecule: molecule
-    :returns: list of fragment molecules
+    Args:
+        molecule: molecule
+
+    Returns:
+        list of fragment molecules
     """
     return Chem.GetMolFrags(molecule, asMols=True, sanitizeFrags=True)  # type: ignore [return-value]
 
@@ -57,16 +61,20 @@ def to_rdkit(
     charge: int = 0,
     remove_Hs: bool = True,
 ) -> Chem.rdchem.Mol:
-    """
-    Convert a given molecular geometry to an RDKit molecule.
+    """Convert a given molecular geometry to an RDKit molecule.
 
-    :param atomic_numbers: atomic numbers
-    :param coordinates: coordinates, in Å
-    :param charge: charge
-    :param remove_Hs: whether or not to strip hydrogens from the output molecule
-    :raises ValueError: if input dimensions aren't correct
-    :raises RuntimeError: if conversion fails
-    :returns: RDKit molecule
+    Args:
+        atomic_numbers: atomic numbers
+        coordinates: coordinates, in Å
+        charge: charge
+        remove_Hs: whether or not to strip hydrogens from the output molecule
+
+    Raises:
+        ValueError: if input dimensions aren't correct
+        SteamrollConversionError: if conversion fails
+
+    Returns:
+        RDKit molecule
     """
     atomic_numbers = list(atomic_numbers)
     coordinates = np.asarray(coordinates)
@@ -84,9 +92,9 @@ def to_rdkit(
     rdkm: Chem.rdchem.Mol
     try:
         try:
-            rdkm = xyz2mol(atomic_numbers, coords, charge=charge)[0]  # type: ignore [no-untyped-call]
+            rdkm = xyz2mol(atomic_numbers, coords, charge=charge)[0]
         except (Exception, ValueError, IndexError):
-            rdkm = xyz2mol(atomic_numbers, coords, charge=charge, use_huckel=True)[0]  # type: ignore [no-untyped-call]
+            rdkm = xyz2mol(atomic_numbers, coords, charge=charge, use_huckel=True)[0]
     except Exception as e:
         raise SteamrollConversionError("xyz2mol conversion failed!") from e
 

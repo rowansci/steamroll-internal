@@ -1,6 +1,8 @@
 [run]
 source = steamroll
-omit = steamroll/__main__.py
+omit =
+    steamroll/__main__.py
+    steamroll/xyz2mol.py
 
 [report]
 exclude_lines =

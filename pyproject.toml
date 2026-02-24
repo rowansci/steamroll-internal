@@ -2,7 +2,7 @@
 name = "steamroll"
 description = "Package to convert 3D molecules to RDKit"
 license = {file = "LICENSE"}
-version = "0.0.1"
+version = "0.0.2"
 readme = "README.md"
 keywords = []
 authors = [
@@ -13,41 +13,22 @@ requires-python = ">=3.11"
 dependencies = [
     "rdkit",
     "numpy",
-    "networkx"
+    "networkx",
 ]
 
-[tool.pixi.project]
-channels = ["conda-forge"]
-platforms = ["linux-64", "osx-arm64"]
-
-[tool.pixi.dependencies]
-
-[tool.pixi.pypi-dependencies]
-steamroll = { path = ".", editable = true }
-
-[tool.pixi.environments]
-default = { solve-group = "default" }
-dev = { features = ["dev"], solve-group = "default"}
-
-[tool.pixi.feature.dev.tasks]
-fmt = { cmd="ruff format ." }
-lint = { cmd="ruff check . --fix" }
-types = { cmd="mypy" }
-test = { cmd="pytest" }
-all = { depends-on = ["fmt", "lint", "types", "test"] }
-
-[tool.pixi.feature.dev.dependencies]
-pytest = ">=8.3"
-pytest-cov = ">=6.0"
-ruff = ">=0.11"
-mypy = ">=1.15"
-pre-commit = ">=4.2"
-
-[tool.pixi.feature.dev.pypi-dependencies]
-rdkit-stubs = ">=0.8"
+[dependency-groups]
+dev = [
+    "prek>=0.3.3",
+    "pytest>=8.4",
+    "pytest-cov>=7.0",
+    "ruff>=0.14",
+    "ty>=0.0.16",
+    "rdkit-stubs>=0.8",
+]
 
 [tool.ruff]
 line-length = 100
+exclude = ["steamroll/xyz2mol.py"]
 
 [tool.ruff.lint]
 select = [
@@ -85,18 +66,15 @@ ignore = [
 "__init__.py" = ["F401", "F403"]
 
 [tool.ruff.lint.pydocstyle]
-convention = "numpy"
-
-[tool.mypy]
-files = ["steamroll", "tests"]
-exclude = ["steamroll/xyz2mol.py"]
-strict = true
-pretty = true
+convention = "google"
 
 [tool.pytest.ini_options]
 testpaths = ["tests", "steamroll"]
-addopts = "--doctest-modules"
+addopts = "--doctest-modules --ignore=steamroll/xyz2mol.py"
 doctest_optionflags = "NORMALIZE_WHITESPACE"
+
+[tool.ty.src]
+exclude = ["steamroll/xyz2mol.py"]
 
 [build-system]
 build-backend = "hatchling.build"

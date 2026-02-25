@@ -1,8 +1,33 @@
 """Tests for the steamroll package."""
 
+from pathlib import Path
+
+import pytest
 from rdkit import Chem
 
-from steamroll.steamroll import fragment, to_rdkit
+from steamroll.steamroll import ATOMIC_NUMBERS, fragment, to_rdkit
+
+HERE = Path(__file__).parent
+DATA_DIR = HERE / "data"
+
+
+def read_xyz(file: Path | str) -> tuple[list[int], list[list[float]]]:
+    """Read an XYZ file."""
+    atomic_numbers = []
+    coordinates = []
+    with Path(file).open() as f:
+        next(f)
+        next(f)
+
+        for line in f:
+            atom, x, y, z = line.split()
+            if atom.isdigit():
+                atomic_numbers.append(int(atom))
+            else:
+                atomic_numbers.append(ATOMIC_NUMBERS[atom])
+            coordinates.append([float(x), float(y), float(z)])
+
+    return atomic_numbers, coordinates
 
 
 def test_steamroll() -> None:
@@ -36,3 +61,12 @@ def test_fragement() -> None:
     rdkm1, rdkm2 = fragment(rdkm)
     assert rdkm1.GetNumAtoms() == 1
     assert rdkm2.GetNumAtoms() == 1
+
+
+@pytest.mark.parametrize("file", DATA_DIR.glob("*.xyz"))
+def test_all_data(file: str) -> None:
+    """Test to make sure all data files can be processed."""
+    atomic_numbers, coordinates = read_xyz(file)
+    rdkm = to_rdkit(atomic_numbers, coordinates)
+
+    assert rdkm.GetNumAtoms() == len(atomic_numbers)

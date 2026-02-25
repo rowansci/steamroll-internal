@@ -9,8 +9,9 @@ import numpy as np
 from numpy.typing import ArrayLike
 from rdkit import Chem
 
-from ._tmc_import import TRANSITION_METALS_NUM, get_tmc_mol, xyz2ac_obabel
 from .xyz2mol.xyz2mol import xyz2mol
+from .xyz2mol_tmc.xyz2mol_local import xyz2AC_obabel as xyz2ac_obabel
+from .xyz2mol_tmc.xyz2mol_tmc import TRANSITION_METALS_NUM, get_tmc_mol
 
 logger = logging.getLogger(__name__)
 

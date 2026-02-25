@@ -3,7 +3,7 @@ source = steamroll
 omit =
     steamroll/__main__.py
     steamroll/xyz2mol/*
-    steamroll/xyz2mol_tm/*
+    steamroll/xyz2mol_tmc/*
 
 [report]
 exclude_lines =

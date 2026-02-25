@@ -1,4 +1,4 @@
-"Module for the xyz2mol functionality for TMCs"
+"""Module for the xyz2mol functionality for TMCs"""
 
 import argparse
 import logging
@@ -12,7 +12,7 @@ from rdkit import Chem
 from rdkit.Chem import GetPeriodicTable, rdchem, rdEHTTools, rdmolops
 from rdkit.Chem.MolStandardize import rdMolStandardize
 
-from xyz2mol_tm.huckel_to_smiles.xyz2mol_local import (
+from .xyz2mol_local import (
     AC2mol,
     chiral_stereo_check,
     read_xyz_file,
@@ -165,9 +165,7 @@ def fix_NO2(smiles):
     )
     matches = emol.GetSubstructMatches(patt)
     for a1, a2, a3, a4 in matches:
-        if not emol.GetBondBetweenAtoms(a1, a4) and not emol.GetBondBetweenAtoms(
-            a3, a4
-        ):
+        if not emol.GetBondBetweenAtoms(a1, a4) and not emol.GetBondBetweenAtoms(a3, a4):
             tm = emol.GetAtomWithIdx(a4)
             o1 = emol.GetAtomWithIdx(a1)
             n = emol.GetAtomWithIdx(a2)
@@ -297,22 +295,16 @@ def get_basic_mol(xyz_file, overall_charge):
     for i, a in enumerate(mol.GetAtoms()):
         if a.GetAtomicNum() == 7:
             # explicit_valence = np.sum(AC[i])
-            explicit_valence = sum(
-                [ele for idx, ele in enumerate(AC[i]) if idx not in tm_indxs]
-            )
+            explicit_valence = sum([ele for idx, ele in enumerate(AC[i]) if idx not in tm_indxs])
             if explicit_valence == 4:
                 a.SetFormalCharge(1)
         if a.GetAtomicNum() == 5:
             # Boron with 4 explicit bonds should be negative
-            explicit_valence = sum(
-                [ele for idx, ele in enumerate(AC[i]) if idx not in tm_indxs]
-            )
+            explicit_valence = sum([ele for idx, ele in enumerate(AC[i]) if idx not in tm_indxs])
             if explicit_valence == 4:
                 a.SetFormalCharge(-1)
         if a.GetAtomicNum() == 8:
-            explicit_valence = sum(
-                [ele for idx, ele in enumerate(AC[i]) if idx not in tm_indxs]
-            )
+            explicit_valence = sum([ele for idx, ele in enumerate(AC[i]) if idx not in tm_indxs])
             if explicit_valence == 3:
                 a.SetFormalCharge(1)
 
@@ -332,9 +324,7 @@ def lig_checks(lig_mol, coordinating_atoms):
     """
     res_mols = rdchem.ResonanceMolSupplier(lig_mol)
     if len(res_mols) == 0:
-        res_mols = rdchem.ResonanceMolSupplier(
-            lig_mol, flags=Chem.ALLOW_INCOMPLETE_OCTETS
-        )
+        res_mols = rdchem.ResonanceMolSupplier(lig_mol, flags=Chem.ALLOW_INCOMPLETE_OCTETS)
     # Check for neighbouring coordinating atoms:
     possible_lig_mols = []
 
@@ -350,9 +340,7 @@ def lig_checks(lig_mol, coordinating_atoms):
             if a.GetFormalCharge() < 0 and a.GetIdx() not in coordinating_atoms:
                 negative_atoms.append(a.GetIdx())
 
-        possible_lig_mols.append(
-            (res_mol, len(positive_atoms), len(negative_atoms), N_aromatic)
-        )
+        possible_lig_mols.append((res_mol, len(positive_atoms), len(negative_atoms), N_aromatic))
     return possible_lig_mols
 
 
@@ -365,24 +353,17 @@ def get_lig_mol(mol, charge, coordinating_atoms):
     on other than the coordinating atoms) can be found. Finally best
     found solution based on criteria in lig_checks is returned.
     """
-
     atoms = [a.GetAtomicNum() for a in mol.GetAtoms()]
     AC = Chem.rdmolops.GetAdjacencyMatrix(mol)
-    lig_mol = AC2mol(
-        mol, AC, atoms, charge, allow_charged_fragments=True, use_atom_maps=False
-    )
+    lig_mol = AC2mol(mol, AC, atoms, charge, allow_charged_fragments=True, use_atom_maps=False)
     if not lig_mol and charge >= 0:
         charge += -2
-        lig_mol = AC2mol(
-            mol, AC, atoms, charge, allow_charged_fragments=True, use_atom_maps=False
-        )
+        lig_mol = AC2mol(mol, AC, atoms, charge, allow_charged_fragments=True, use_atom_maps=False)
         if not lig_mol:
             return None, charge
     if not lig_mol and charge < 0:
         charge += 2
-        lig_mol = AC2mol(
-            mol, AC, atoms, charge, allow_charged_fragments=True, use_atom_maps=False
-        )
+        lig_mol = AC2mol(mol, AC, atoms, charge, allow_charged_fragments=True, use_atom_maps=False)
         if not lig_mol:
             charge += -4
             lig_mol = AC2mol(
@@ -406,10 +387,7 @@ def get_lig_mol(mol, charge, coordinating_atoms):
                 N_neg_atoms,
                 N_aromatic,
             )
-        if (
-            N_aromatic == highest_aromatic
-            and N_pos_atoms + N_neg_atoms < lowest_pos + lowest_neg
-        ):
+        if N_aromatic == highest_aromatic and N_pos_atoms + N_neg_atoms < lowest_pos + lowest_neg:
             best_res_mol, lowest_pos, lowest_neg = res_mol, N_pos_atoms, N_neg_atoms
     if lowest_pos + lowest_neg == 0:
         return best_res_mol, charge
@@ -475,10 +453,7 @@ def get_lig_mol(mol, charge, coordinating_atoms):
                 N_aromatic,
             )
             charge = new_charge
-        if (
-            N_aromatic == highest_aromatic
-            and N_pos_atoms + N_neg_atoms < lowest_pos + lowest_neg
-        ):
+        if N_aromatic == highest_aromatic and N_pos_atoms + N_neg_atoms < lowest_pos + lowest_neg:
             best_res_mol, lowest_pos, lowest_neg = res_mol, N_pos_atoms, N_neg_atoms
             charge = new_charge
 
@@ -506,13 +481,9 @@ def get_tmc_mol(xyz_file, overall_charge, with_stereo=False):
             tmc_idx = a.GetIdx()
 
     if tmc_idx is None:
-        raise Exception(
-            "Found no TM in the input file. Please supply an xyz file with a TM"
-        )
+        raise Exception("Found no TM in the input file. Please supply an xyz file with a TM")
 
-    coordinating_atoms = np.nonzero(Chem.rdmolops.GetAdjacencyMatrix(mol)[tmc_idx, :])[
-        0
-    ]
+    coordinating_atoms = np.nonzero(Chem.rdmolops.GetAdjacencyMatrix(mol)[tmc_idx, :])[0]
 
     # frags = rdMolStandardize.DisconnectOrganometallics(mol, params)
     mdis = rdMolStandardize.MetalDisconnector(params)
@@ -534,9 +505,7 @@ def get_tmc_mol(xyz_file, overall_charge, with_stereo=False):
             lig_charge = get_proposed_ligand_charge(f)
 
             lig_coordinating_atoms = [
-                a.GetIdx()
-                for a in m.GetAtoms()
-                if a.GetIntProp("__origIdx") in coordinating_atoms
+                a.GetIdx() for a in m.GetAtoms() if a.GetIntProp("__origIdx") in coordinating_atoms
             ]
             lig_mol, lig_charge = get_lig_mol(m, lig_charge, lig_coordinating_atoms)
             if not lig_mol:
@@ -546,9 +515,7 @@ def get_tmc_mol(xyz_file, overall_charge, with_stereo=False):
             lig_list.append(lig_mol)
 
     if tm_idx is None:
-        raise Exception(
-            "Found no TM in the input file. Please supply an xyz file with a TM"
-        )
+        raise Exception("Found no TM in the input file. Please supply an xyz file with a TM")
 
     tm = Chem.RWMol(frag_mols[tm_idx])
     tm_ox = overall_charge - total_lig_charge
@@ -564,13 +531,9 @@ def get_tmc_mol(xyz_file, overall_charge, with_stereo=False):
 
     emol = Chem.RWMol(tm)
     coordinating_atoms_idx = [
-        a.GetIdx()
-        for a in emol.GetAtoms()
-        if a.GetIntProp("__origIdx") in coordinating_atoms
+        a.GetIdx() for a in emol.GetAtoms() if a.GetIntProp("__origIdx") in coordinating_atoms
     ]
-    tm_idx = [
-        a.GetIdx() for a in emol.GetAtoms() if a.GetIntProp("__origIdx") == tmc_idx
-    ][0]
+    tm_idx = [a.GetIdx() for a in emol.GetAtoms() if a.GetIntProp("__origIdx") == tmc_idx][0]
     dMat = Chem.Get3DDistanceMatrix(emol)
     cut_atoms = []
     for i, j in combinations(coordinating_atoms_idx, 2):
@@ -590,11 +553,7 @@ def get_tmc_mol(xyz_file, overall_charge, with_stereo=False):
     for j in cut_atoms:
         for i in coordinating_atoms_idx:
             bond = emol.GetBondBetweenAtoms(int(i), int(j))
-            if (
-                bond
-                and dMat[i, tm_idx] - dMat[j, tm_idx] >= -0.1
-                and i in coordinating_atoms_idx
-            ):
+            if bond and dMat[i, tm_idx] - dMat[j, tm_idx] >= -0.1 and i in coordinating_atoms_idx:
                 coordinating_atoms_idx.remove(i)
 
     for i in coordinating_atoms_idx:
@@ -619,9 +578,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="This script takes a TMC xyzfile as input and returns a TMC SMILES"
     )
-    parser.add_argument(
-        "--xyz_file", type=Path, help="The path to a TMC xyz file", required=True
-    )
+    parser.add_argument("--xyz_file", type=Path, help="The path to a TMC xyz file", required=True)
     parser.add_argument(
         "--charge",
         type=int,
@@ -662,6 +619,4 @@ if __name__ == "__main__":
     with open(args.xyz_file.stem + ".txt", "w") as _f:
         _f.write(smiles)
 
-    logger.info(
-        f"Output SMILES: {Chem.MolToSmiles(Chem.MolFromSmiles(Chem.MolToSmiles(tmc_mol)))}"
-    )
+    logger.info(f"Output SMILES: {Chem.MolToSmiles(Chem.MolFromSmiles(Chem.MolToSmiles(tmc_mol)))}")

@@ -172,6 +172,20 @@ atomic_valence[48] = [20]
 
 
 atomic_valence[57] = [20]
+atomic_valence[58] = [20]
+atomic_valence[59] = [20]
+atomic_valence[60] = [20]
+atomic_valence[61] = [20]
+atomic_valence[62] = [20]
+atomic_valence[63] = [20]
+atomic_valence[64] = [20]
+atomic_valence[65] = [20]
+atomic_valence[66] = [20]
+atomic_valence[67] = [20]
+atomic_valence[68] = [20]
+atomic_valence[69] = [20]
+atomic_valence[70] = [20]
+atomic_valence[71] = [20]
 atomic_valence[72] = [20]
 atomic_valence[73] = [20]
 atomic_valence[74] = [20]
@@ -181,6 +195,22 @@ atomic_valence[77] = [20]
 atomic_valence[78] = [20]
 atomic_valence[79] = [20]
 atomic_valence[80] = [20]
+
+atomic_valence[89] = [20]
+atomic_valence[90] = [20]
+atomic_valence[91] = [20]
+atomic_valence[92] = [20]
+atomic_valence[93] = [20]
+atomic_valence[94] = [20]
+atomic_valence[95] = [20]
+atomic_valence[96] = [20]
+atomic_valence[97] = [20]
+atomic_valence[98] = [20]
+atomic_valence[99] = [20]
+atomic_valence[100] = [20]
+atomic_valence[101] = [20]
+atomic_valence[102] = [20]
+atomic_valence[103] = [20]
 
 
 atomic_valence_electrons = {}
@@ -281,11 +311,7 @@ def charge_is_OK(
             Q += q
             if atom == 6:
                 number_of_single_bonds_to_C = list(BO[i, :]).count(1)
-                if (
-                    not allow_carbenes
-                    and number_of_single_bonds_to_C == 2
-                    and BO_valences[i] == 2
-                ):
+                if not allow_carbenes and number_of_single_bonds_to_C == 2 and BO_valences[i] == 2:
                     print("found illegal carbene")
                     Q += 1
                     q = 2
@@ -310,7 +336,7 @@ def BO_is_OK(
 ):
     """Sanity of bond-orders.
 
-    args:
+    Args:
         BO -
         AC -
         charge -
@@ -321,10 +347,9 @@ def BO_is_OK(
         allow_charges_fragments -
 
 
-    returns:
+    Returns:
         boolean - true of molecule is OK, false if not
     """
-
     if not valences_not_too_large(BO, valences):
         return False
 
@@ -386,7 +411,7 @@ def BO2mol(
     From bond order, atoms, valence structure and total charge, generate an
     rdkit molecule.
 
-    args:
+    Args:
         mol - rdkit molecule
         BO_matrix - bond order matrix of molecule
         atoms - list of integer atomic symbols
@@ -396,19 +421,16 @@ def BO2mol(
     optional:
         allow_charged_fragments - bool - allow charged fragments
 
-    returns
+    Returns:
         mol - updated rdkit molecule with bond connectivity
     """
-
     length_bo = len(BO_matrix)
     length_atoms = len(atoms)
     BO_valences = list(BO_matrix.sum(axis=1))
 
     if length_bo != length_atoms:
         raise RuntimeError(
-            "sizes of adjMat ({0:d}) and Atoms {1:d} differ".format(
-                length_bo, length_atoms
-            )
+            "sizes of adjMat ({0:d}) and Atoms {1:d} differ".format(length_bo, length_atoms)
         )
 
     rwMol = Chem.RWMol(mol)
@@ -489,9 +511,7 @@ def set_atomic_charges(
     return mol
 
 
-def set_atomic_radicals(
-    mol, atoms, atomic_valence_electrons, BO_valences, use_atom_maps=True
-):
+def set_atomic_radicals(mol, atoms, atomic_valence_electrons, BO_valences, use_atom_maps=True):
     """The number of radical electrons = absolute atomic charge."""
     atomic_valence[8] = [2, 1]
     atomic_valence[7] = [3, 2]
@@ -588,9 +608,7 @@ def get_UA_pairs(UA, AC, DU, use_graph=True):
     return UA_pairs
 
 
-def AC2BO(
-    AC, atoms, charge, allow_charged_fragments=True, use_graph=True, allow_carbenes=True
-):
+def AC2BO(AC, atoms, charge, allow_charged_fragments=True, use_graph=True, allow_carbenes=True):
     """Implemenation of algorithm shown in Figure 2.
 
     UA: unsaturated atoms
@@ -599,7 +617,6 @@ def AC2BO(
 
     best_BO: Bcurr in Figure
     """
-
     global atomic_valence
     global atomic_valence_electrons
 
@@ -638,29 +655,19 @@ def AC2BO(
     best_BO = AC.copy()
 
     O_valences = [
-        v_list
-        for v_list, atomicNum in zip(valences_list_of_lists, atoms)
-        if atomicNum == 8
+        v_list for v_list, atomicNum in zip(valences_list_of_lists, atoms) if atomicNum == 8
     ]
     N_valences = [
-        v_list
-        for v_list, atomicNum in zip(valences_list_of_lists, atoms)
-        if atomicNum == 7
+        v_list for v_list, atomicNum in zip(valences_list_of_lists, atoms) if atomicNum == 7
     ]
     C_valences = [
-        v_list
-        for v_list, atomicNum in zip(valences_list_of_lists, atoms)
-        if atomicNum == 6
+        v_list for v_list, atomicNum in zip(valences_list_of_lists, atoms) if atomicNum == 6
     ]
     P_valences = [
-        v_list
-        for v_list, atomicNum in zip(valences_list_of_lists, atoms)
-        if atomicNum == 15
+        v_list for v_list, atomicNum in zip(valences_list_of_lists, atoms) if atomicNum == 15
     ]
     S_valences = [
-        v_list
-        for v_list, atomicNum in zip(valences_list_of_lists, atoms)
-        if atomicNum == 16
+        v_list for v_list, atomicNum in zip(valences_list_of_lists, atoms) if atomicNum == 16
     ]
 
     O_sums = []
@@ -690,9 +697,7 @@ def AC2BO(
         S_sums.append(v_list)
 
     order_dict = dict()
-    for i, v_list in enumerate(
-        itertools.product(*[O_sums, N_sums, C_sums, P_sums, S_sums])
-    ):
+    for i, v_list in enumerate(itertools.product(*[O_sums, N_sums, C_sums, P_sums, S_sums])):
         order_dict[v_list] = i
 
     valence_order_list = []
@@ -775,11 +780,7 @@ def AC2BO(
 
             if status:
                 return BO, atomic_valence_electrons
-            elif (
-                BO.sum() >= best_BO.sum()
-                and valences_not_too_large(BO, valences)
-                and charge_OK
-            ):
+            elif BO.sum() >= best_BO.sum() and valences_not_too_large(BO, valences) and charge_OK:
                 best_BO = BO.copy()
 
     return best_BO, atomic_valence_electrons
@@ -870,7 +871,7 @@ def read_xyz_file(filename, look_for_charge=True):
 def xyz2AC(atoms, xyz, charge, use_huckel=False, use_obabel=False):
     """Atoms and coordinates to atom connectivity (AC)
 
-    args:
+    Args:
         atoms - int atom types
         xyz - coordinates
         charge - molecule charge
@@ -879,7 +880,7 @@ def xyz2AC(atoms, xyz, charge, use_huckel=False, use_obabel=False):
         use_huckel - Use Huckel method for atom connecitivty
         use_obabel - Use Opne Babel method for atom connectivity
 
-    returns
+    Returns:
         ac - atom connectivity matrix
         mol - rdkit molecule
     """
@@ -914,13 +915,13 @@ def get_AC(mol, covalent_factor=1.3):
 
     covalent_factor - 1.3 is an arbitrary factor
 
-    args:
+    Args:
         mol - rdkit molobj with 3D conformer
 
     optional
         covalent_factor - increase covalent bond length threshold with facto
 
-    returns:
+    Returns:
         AC - adjacent matrix
     """
     # Calculate distance matrix
@@ -950,7 +951,7 @@ def xyz2AC_huckel(atomicNumList, xyz, charge):
         xyz - coordinates
         charge - molecule charge
 
-    returns
+    Returns:
         ac - atom connectivity
         mol - rdkit molecule
     """
@@ -966,9 +967,7 @@ def xyz2AC_huckel(atomicNumList, xyz, charge):
     AC = np.zeros((num_atoms, num_atoms)).astype(int)
 
     mol_huckel = Chem.Mol(mol)
-    mol_huckel.GetAtomWithIdx(0).SetFormalCharge(
-        charge
-    )  # mol charge arbitrarily added to 1st atom
+    mol_huckel.GetAtomWithIdx(0).SetFormalCharge(charge)  # mol charge arbitrarily added to 1st atom
 
     passed, result = rdEHTTools.RunMol(mol_huckel)
     opop = result.GetReducedOverlapPopulationMatrix()
@@ -1030,14 +1029,14 @@ def xyz2AC_obabel(atoms, xyz, tolerance=0.45):
 
     tolerance - 0.45Å is from the open babel paper
 
-    args:
+    Args:
         mol - rdkit molobj with 3D conformer
 
     optional
         tolerance - atoms connected if distance is shorter than sum of atomic
         radii + tolerance. If too many bonds to an atom; break longest bond
 
-    returns:
+    Returns:
         AC - adjacency matrix
     """
     global atomic_valence
@@ -1088,15 +1087,13 @@ def chiral_stereo_check(mol):
     """Find and embed chiral information into the model based on the
     coordinates.
 
-    args:
+    Args:
         mol - rdkit molecule, with embeded conformer
     """
     Chem.SanitizeMol(mol)
     Chem.DetectBondStereochemistry(mol, -1)
     Chem.AssignStereochemistry(mol, flagPossibleStereoCenters=True, force=True)
     Chem.AssignAtomChiralTagsFromStructure(mol, -1)
-
-    return
 
 
 def xyz2mol(
@@ -1112,7 +1109,7 @@ def xyz2mol(
 ):
     """Generate a rdkit molobj from atoms, coordinates and a total_charge.
 
-    args:
+    Args:
         atoms - list of atom types (int)
         coordinates - 3xN Cartesian coordinates
         charge - total charge of the system (default: 0)
@@ -1123,15 +1120,12 @@ def xyz2mol(
         use_huckel - Use Huckel method for atom connectivity prediction
         embed_chiral - embed chiral information to the molecule
 
-    returns:
+    Returns:
         mols - list of rdkit molobjects
     """
-
     # Get atom connectivity (AC) matrix, list of atomic numbers, molecular charge,
     # and mol object with no connectivity information
-    AC, mol = xyz2AC(
-        atoms, coordinates, charge, use_huckel=use_huckel, use_obabel=use_obabel
-    )
+    AC, mol = xyz2AC(atoms, coordinates, charge, use_huckel=use_huckel, use_obabel=use_obabel)
     # Convert AC to bond order matrix and add connectivity and charge info to
     # mol object
     new_mol = AC2mol(
@@ -1169,9 +1163,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(usage="%(prog)s [options] molecule.xyz")
     parser.add_argument("structure", metavar="structure", type=str)
     parser.add_argument("-s", "--sdf", action="store_true", help="Dump sdf file")
-    parser.add_argument(
-        "--ignore-chiral", action="store_true", help="Ignore chiral centers"
-    )
+    parser.add_argument("--ignore-chiral", action="store_true", help="Ignore chiral centers")
     parser.add_argument(
         "--no-charged-fragments", action="store_true", help="Allow radicals to be made"
     )

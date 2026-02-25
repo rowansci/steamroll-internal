@@ -97,9 +97,7 @@ def to_rdkit(
         atomic_numbers: atomic numbers
         coordinates: coordinates, in Å
         charge: charge
-        remove_Hs: whether or not to strip hydrogens from the output molecule;
-            ignored for transition-metal complexes and geometry-only fallback
-            conversions, which always return all input atoms
+        remove_Hs: whether or not to strip hydrogens from the output molecule
 
     Raises:
         ValueError: if input dimensions aren't correct
@@ -151,7 +149,6 @@ def to_rdkit(
     if rdkm is None:
         # xyz2mol failed for a non-TM molecule (e.g. wrong charge, unsupported
         # element). Fall back to a geometry-only mol via obabel connectivity.
-        # All input atoms are preserved; remove_Hs is not applied.
         try:
             _, rdkm = xyz2ac_obabel(atomic_numbers, coords)
         except Exception as e:

@@ -2,7 +2,7 @@
 source = steamroll
 omit =
     steamroll/__main__.py
-    steamroll/xyz2mol.py
+    steamroll/xyz2mol/*
     steamroll/xyz2mol_tm/*
 
 [report]
